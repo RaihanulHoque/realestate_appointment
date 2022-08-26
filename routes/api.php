@@ -39,6 +39,5 @@ Route::group([
     Route::post('/appointments', [AppointmentController::class, 'store']);  
     Route::get('/appointment/{id}', [AppointmentController::class, 'show']);  
     Route::put('/appointment/{id}', [AppointmentController::class, 'update']);  
-    Route::delete('/appointment/{id}', [AppointmentController::class, 'destroy']);     
-
+    Route::delete('/appointment/{id}', [AppointmentController::class, 'destroy']);
 });

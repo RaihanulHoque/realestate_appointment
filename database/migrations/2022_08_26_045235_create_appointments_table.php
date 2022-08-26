@@ -22,7 +22,7 @@ class CreateAppointmentsTable extends Migration
             $table->date('appointment_date');
             $table->time('appointment_start_time');
             $table->string('departure_time_to_site_office')->nullable()->comment('Time calculation for Estimated Time of Departure from office to the Appointment Addres, which is the RealEstate Office');
-            $table->dateTime('appointment_end_time');
+            $table->time('appointment_end_time');
             $table->string('departure_time_to_agent_office')->nullable()->comment('Time calculation for Estimated Time of Departure from the Real Estate office to the Agent Office');
             $table->timestamps();
 
