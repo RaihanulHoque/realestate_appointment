@@ -1,0 +1,11 @@
+
+1.Run git clone <https://github.com/RaihanulHoque/realestate_appointment.git>
+2.Run composer install
+3.Run cp .env.example .env
+4.Run php artisan key:generate
+5.Run php artisan migrate
+6.Run php artisan jwt:secret
+7.Run php artisan clear-compiled 
+8.Run php artisan optimize
+9.Run php artisan serve
+10.Go to link localhost:8000

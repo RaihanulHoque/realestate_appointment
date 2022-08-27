@@ -16,25 +16,15 @@ class CreateAppointmentsTable extends Migration
         Schema::create('appointments', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('contact_id')->comment('The customer ID');
-            $table->unsignedInteger('user_id')->comment('The Appointed By person');
+            $table->unsignedInteger('user_id')->nullable()->comment('The Appointed By person');
             $table->string('appointment_address');
-            $table->string('measured_distance');
+            $table->string('measured_distance')->nullable();
             $table->date('appointment_date');
             $table->time('appointment_start_time');
-            $table->string('departure_time_to_site_office')->nullable()->comment('Time calculation for Estimated Time of Departure from office to the Appointment Addres, which is the RealEstate Office');
-            $table->time('appointment_end_time');
-            $table->string('departure_time_to_agent_office')->nullable()->comment('Time calculation for Estimated Time of Departure from the Real Estate office to the Agent Office');
+            $table->time('departure_time_to_site_office')->nullable()->comment('Time calculation for Estimated Time of Departure from office to the Appointment Addres, which is the RealEstate Office');
+            $table->time('appointment_end_time')->nullable();
+            $table->time('arrival_time_to_agent_office')->nullable()->comment('Time calculation for Estimated Time of Arrival to the Agent Office from the Real Estate office');
             $table->timestamps();
-
-            $table->foreign('user_id')
-            ->references('id')
-            ->on('users')
-            ->onDelete('cascade');
-            
-            $table->foreign('contact_id')
-            ->references('id')
-            ->on('contacts')
-            ->onDelete('cascade');
         });
     }
 

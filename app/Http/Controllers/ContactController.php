@@ -11,7 +11,7 @@ class ContactController extends Controller
     protected $user;
     public function __construct()
     {
-        $this->user = JWTAuth::parseToken()->authenticate();        
+        $this->user = JWTAuth::parseToken()->authenticate();
     }
     /**
      * Display a listing of the resource.
@@ -26,14 +26,14 @@ class ContactController extends Controller
     public function show($id)
     {
         $contact = $this->user->contacts()->find($id);
-    
+
         if (!$contact) {
             return response()->json([
                 'success' => false,
                 'message' => 'Sorry, Contact with cannot be found'
             ], 400);
         }
-    
+
         return $contact;
     }
 
@@ -50,16 +50,16 @@ class ContactController extends Controller
             'name' => 'required|string',
             'email' => 'required|string',
             'phone' => 'required|string',
-            'address' => 'required|string|max:6'
+            'address' => 'required|string|max:7'
         ]);
-    
-        $contact = new Contacts(); 
+
+        $contact = new Contacts();
         $contact->created_by= $request->user()->id;
         $contact->name= $request->name;
         $contact->surname= $request->surname;
         $contact->email= $request->email;
         $contact->phone= $request->phone;
-        $contact->address= $request->address;
+        $contact->address= str_replace(' ', '', $request->address);
 
         if ($this->user->contacts()->save($contact))
             return response()->json([
@@ -85,7 +85,7 @@ class ContactController extends Controller
 
         $updated = $contact->fill($request->all())
             ->save();
-        
+
         if ($updated) {
             return response()->json([
                 'success' => true
@@ -96,20 +96,20 @@ class ContactController extends Controller
                 'message' => 'Sorry, contact could not be updated'
             ], 500);
         }
-       
+
     }
 
     public function destroy($id)
     {
         $contact = $this->user->contacts()->find($id);
-    
+
         if (!$contact) {
             return response()->json([
                 'success' => false,
                 'message' => 'Sorry, contact with id ' . $id . ' cannot be found'
             ], 400);
         }
-    
+
         if ($contact->delete()) {
             return response()->json([
                 'success' => true
