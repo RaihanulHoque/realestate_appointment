@@ -1,64 +1,64 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
+This Real Estate Agent Monitoring API has been developed based on finding a solution to the problem faced by real estate agent companies. Usually, agent companies show their properties to different customers by organizing appointments. Specific agents are responsible to manage those customers and their appointments. Agents’ people keep all the customer records in their contact list. 
+Here in this API, an agent can get register himself and manage his customers as well as their appointments.  The Installation guide and all the features of this APP are listing below-
+-	[Application Features](##features)
+-	[Technical Features](##technical-features)
+-	[Installation Guide](##installation)
+-	[User Registration](##registration)
+-	[User Login](##login)
+-	[User Profile](##profile)
+-	[User Logout](##logout)
+-	[Add Contacts](##add-contact)
+-	[Contact Lists](##contact-list)
+-	[Contact Detail View](##contact-detail)
+-	[Update Contact](##update-contact)
+-	[Delete Contact](##delete-contact)
+-	[Add Appointment](##add- appointment)
+-	[Appointment Lists](## appointment -list)
+-	[Appointment Detail View](## appointment -detail)
+-	[Update Appointment](##update- appointment)
+-	[Delete Appointment](##delete-appointment)
+##  Application Features
+-	This API facilitated Agent User Registration/Login/Logout system. User registration required fields are: name, email, phone, address, and password. The address should be only VALID ZIP CODE (Max:7 Characters). Here, a default zip code is provided as CM27PJ for all Agent’s Registration, considering it as the address of Agent Office.
+-	An agent can add customer information as their contact list. Contact information will be adding based on name, surname, email, address, and phone. Agent can update or delete any contact if required.
+-	Agents can create Appointments for specific Location (considering as ‘Appointment Address’) with specific customer from their contact list. The default appointment duration is considering as -one hour. 
+-	The distance between agent’s office location and the appointment location can be measured. Agent can find estimated time duration before joining the appointment. So that h/she can have an idea about the departure time from the office based on his appointment start time. 
+-	After one hour of the appointment, agent can have an idea about the estimated arrival time duration to come back to his/her office. 
+-	All the distance and communication duration are measuring by Google Maps API. 
+-	Agent can manage their appointments (Add, Update, delete)
+## Technical Features
+-	PHP Framework Laravel-8.75 is used to make this backend application. 
+-	JSON Web Token Authentication (jwt-auth) is used to manage token based authentication system.  JWT generates a secured three part JSON Web Token. These three parts are separated by ‘.’ (dot) and each section is created differently. The first part of the token hold the header information, second part hold payload information and the last part of the token hold signature. This signature is made up of a hash of the header, the payload and the secret. This is the final part of the whole token. 
+-	The application designed and developed on RESTful API and data transfer environment. 
+-	Google Maps API is used to measure distance between two zip code location and to get time duration for transporting between them. Initially UK based zip codes (6 characters) are processing for calculation process. 
+-	[POSTMAN collection folder]( https://www.getpostman.com/collections/b0987d47a462d745928d) is provided for usages reference. 
+## Installation Guide
+•	Get the application from [GitHub link](https://github.com/RaihanulHoque/realestate_appointment.git)
+•	Run the composer to the application folder `composer install` 
+•	Copy the .env file from the example file `cp .env.example .env`
+•	Generate the artisan key `php artisan key:generate`
+•	Create a database and rename the database name into the .env file and run the migration command `php artisan migrate`
+•	Generate the JWT Secret code by `php artisan jwt:secret`
+•	clear your application cache by `php artisan clear-compiled`
+•	Recreate boostrap/cache/compiled.php by `php artisan optimize`
+•	Run the application `php artisan serve`
+•	Go to link and access the application `localhost:8000`
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
 
-## About Laravel
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
-
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
-
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
-
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 1500 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-## Laravel Sponsors
-
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
-
-### Premium Partners
-
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## User Registration 
+### POST /register
+Example Link: http://127.0.0.1:8000/api/auth/register
+Response body:
+```ruby
+{
+    "message": "User successfully registered",
+    "user": {
+        "name": "Md Raihanul",
+        "email": "raihansabuj@gmail.com",
+        "phone": "01711239679",
+        "updated_at": "2022-08-27T04:08:37.000000Z",
+        "created_at": "2022-08-27T04:08:37.000000Z",
+        "id": 1
+    }
+}
+```
