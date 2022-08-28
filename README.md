@@ -211,17 +211,6 @@ Response body:
 {
     "success": true,
     "message": "Contact Updated successfully!",
-    "contact": {
-        "id": 1,
-        "name": "James",
-        "surname": "Bond",
-        "email": "james@bond.com",
-        "phone": "+445865455",
-        "address": "LU11DE",
-        "created_by": "1",
-        "created_at": "2022-08-27T09:02:55.000000Z",
-        "updated_at": "2022-08-27T16:15:14.000000Z"
-    }
 }
 ```
 
@@ -334,23 +323,9 @@ Example Link: http://127.0.0.1:8000/api/auth/appointment/12
 
 Response body:
 ```ruby
-    {
+{
     "success": true,
     'message'=>'Appointment updated successfully!',
-    "appointment": {
-        "id": 12,
-        "contact_id": "5",
-        "user_id": "1",
-        "appointment_address": "LU11BQ",
-        "measured_distance": "2km",
-        "appointment_date": "2022-08-31",
-        "appointment_start_time": "10:45:00",
-        "departure_time_to_site_office": "12:00:00",
-        "appointment_end_time": "13:30:00",
-        "arrival_time_to_agent_office": "14:10:00",
-        "created_at": "2022-08-27T09:54:32.000000Z",
-        "updated_at": "2022-08-27T16:38:47.000000Z"
-    }
 }
 
 ```
