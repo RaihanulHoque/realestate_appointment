@@ -14,16 +14,16 @@ class CreateAppointmentsTable extends Migration
     public function up()
     {
         Schema::create('appointments', function (Blueprint $table) {
-            $table->increments('id');
-            $table->unsignedInteger('contact_id')->comment('The customer ID');
-            $table->unsignedInteger('user_id')->nullable()->comment('The Appointed By person');
-            $table->string('appointment_address');
-            $table->string('measured_distance')->nullable();
+            $table->id();
+            $table->foreignId('contact_id')->constrained('contacts')->onDelete('cascade');
+            $table->foreignId('user_id')->nullable()->constrained('users')->nullableOnDelete();
+            $table->string('appointment_address', 255);
+            $table->decimal('measured_distance', 8, 2)->nullable();
             $table->date('appointment_date');
             $table->time('appointment_start_time');
-            $table->time('departure_time_to_site_office')->nullable()->comment('Time calculation for Estimated Time of Departure from office to the Appointment Addres, which is the RealEstate Office');
+            $table->time('departure_time_to_site_office')->nullable();
             $table->time('appointment_end_time')->nullable();
-            $table->time('arrival_time_to_agent_office')->nullable()->comment('Time calculation for Estimated Time of Arrival to the Agent Office from the Real Estate office');
+            $table->time('arrival_time_to_agent_office')->nullable();
             $table->timestamps();
         });
     }
