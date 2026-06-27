@@ -30,13 +30,4 @@ class Appointments extends Model
     {
         return $this->belongsTo(User::class);
     }
-    //Calculating Distance Between Agent Office Address and Appointment Address
-    // THE API KEY I USED is not activated, to get actual values from this function a VALID API KEY Should be used
-    public static function getGoogleMapInfo($zip1, $zip2)
-    {
-      $api = file_get_contents("https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins=".$zip1."&destinations=".$zip2."&key=API_KEY");
-      $data = json_decode($api);
-      return $data;
-    }
-
 }

@@ -4,123 +4,98 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Contacts;
-use Tymon\JWTAuth\Facades\JWTAuth;
+use App\Http\Requests\StoreContactRequest;
+use App\Http\Requests\UpdateContactRequest;
+use App\Http\Resources\ContactResource;
+use App\Traits\ApiResponser;
 
 class ContactController extends Controller
 {
-    protected $user;
+    use ApiResponser;
+
     public function __construct()
     {
-        $this->user = JWTAuth::parseToken()->authenticate();
+        $this->middleware('auth:api');
     }
+
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        return $this->user->contacts()->get()->toArray();
+        return ContactResource::collection($request->user()->contacts()->get());
     }
 
-    public function show($id)
+    public function show(Request $request, $id)
     {
-        $contact = $this->user->contacts()->find($id);
+        $contact = $request->user()->contacts()->find($id);
 
         if (!$contact) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Sorry, Contact with cannot be found'
-            ], 400);
+            return $this->notFoundResponse('contact', $id);
         }
 
-        return $contact;
+        $this->authorize('view', $contact);
+
+        return new ContactResource($contact);
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Http\Requests\StoreContactRequest  $request
      * @return \Illuminate\Http\Response
      */
-
-    public function store(Request $request)
+    public function store(StoreContactRequest $request)
     {
-        $this->validate($request, [
-            'name' => 'required|string',
-            'email' => 'required|string',
-            'phone' => 'required|string',
-            'address' => 'required|string|max:7'
-        ]);
-
         $contact = new Contacts();
-        $contact->created_by= $request->user()->id;
-        $contact->name= $request->name;
-        $contact->surname= $request->surname;
-        $contact->email= $request->email;
-        $contact->phone= $request->phone;
-        $contact->address= str_replace(' ', '', $request->address);
+        $contact->created_by = $request->user()->id;
+        $contact->name = $request->name;
+        $contact->surname = $request->surname;
+        $contact->email = $request->email;
+        $contact->phone = $request->phone;
+        $contact->address = str_replace(' ', '', $request->address);
 
-        if ($this->user->contacts()->save($contact))
-            return response()->json([
-                'success' => true,
-                'contact' => $contact
-            ]);
-        else
-            return response()->json([
-                'success' => false,
-                'message' => 'Sorry, contact could not be added'
-            ], 500);
-    }
-
-    public function update(Request $request, $id)
-    {
-        $contact = $this->user->contacts()->find($id);
-        if (!$contact) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Sorry, contact with id ' . $contact . ' cannot be found'
-            ], 400);
+        if ($request->user()->contacts()->save($contact)) {
+            return $this->successResponse(['contact' => new ContactResource($contact)]);
         }
 
-        $updated = $contact->fill($request->all())
-            ->save();
+        return $this->errorResponse('Sorry, contact could not be added', 500);
+    }
+
+    public function update(UpdateContactRequest $request, $id)
+    {
+        $contact = $request->user()->contacts()->find($id);
+        if (!$contact) {
+            return $this->notFoundResponse('contact', $id);
+        }
+
+        $this->authorize('update', $contact);
+
+        $updated = $contact->fill($request->validated())->save();
 
         if ($updated) {
-            return response()->json([
-                'success' => true
-            ]);
-        } else {
-            return response()->json([
-                'success' => false,
-                'message' => 'Sorry, contact could not be updated'
-            ], 500);
+            return $this->successResponse();
         }
 
+        return $this->errorResponse('Sorry, contact could not be updated', 500);
     }
 
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
-        $contact = $this->user->contacts()->find($id);
+        $contact = $request->user()->contacts()->find($id);
 
         if (!$contact) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Sorry, contact with id ' . $id . ' cannot be found'
-            ], 400);
+            return $this->notFoundResponse('contact', $id);
         }
+
+        $this->authorize('delete', $contact);
 
         if ($contact->delete()) {
-            return response()->json([
-                'success' => true
-            ]);
-        } else {
-            return response()->json([
-                'success' => false,
-                'message' => 'contact could not be deleted'
-            ], 500);
+            return $this->successResponse();
         }
+
+        return $this->errorResponse('contact could not be deleted', 500);
     }
-
-
 }

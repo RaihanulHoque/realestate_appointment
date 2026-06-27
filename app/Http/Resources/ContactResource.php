@@ -18,12 +18,11 @@ class ContactResource extends JsonResource
         'id' => $this->id,
         'name' => $this->name,
         'surname' => $this->surname,
+        'email' => $this->email,
         'phone' => $this->phone,
         'address' => $this->address,
         'created_at' => (string) $this->created_at,
         'updated_at' => (string) $this->updated_at,
-        // 'created_by' => $this->user,
-        // 'appointments' => $this->appointments,
       ];
     }
  
