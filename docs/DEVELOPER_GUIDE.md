@@ -12,10 +12,10 @@ The system has two parts, developed at different times and intentionally decoupl
 
 | Part | What it is | Where |
 |---|---|---|
-| **Backend API** | Laravel 8 JWT-secured REST API | repo root (`app/`, `routes/`, `database/`) |
+| **Backend API** | Laravel 11 Sanctum-secured REST API | repo root (`app/`, `routes/`, `database/`) |
 | **Frontend SPA** | React 18 + Vite single-page app | `frontend/` |
 
-They communicate only over HTTP (JSON + CORS + JWT bearer tokens) — the frontend is not built or served by Laravel in any way. You can run, deploy, or replace either side independently.
+They communicate only over HTTP (JSON + CORS + Sanctum bearer tokens) — the frontend is not built or served by Laravel in any way. You can run, deploy, or replace either side independently.
 
 ---
 
@@ -28,7 +28,7 @@ The project was inherited as a working-but-rough Laravel 8 API:
 - Two controllers (`ContactController`, `AppointmentController`) containing inline validation, no authorization checks, and duplicated CRUD/error-handling code
 - An abandoned duplicate controller (`__AppointmentController.php`) left in the codebase
 - Both `laravel/sanctum` and `tymon/jwt-auth` installed, but only JWT actually wired up
-- No `JWT_SECRET` configured — every protected route was one request away from a 500 crash
+- No `JWT_SECRET` configured — every protected route was one request away from a 500 crash *(resolved: migrated to Sanctum, no JWT secret needed)*
 - A model relationship pointing at the wrong foreign key column
 - A database column (`measured_distance`) that couldn't actually hold the value the code wrote to it
 - No frontend at all — just a static, hand-written API documentation page (`resources/views/welcome.blade.php`)
@@ -47,11 +47,14 @@ Agreed and executed in two phases:
 
 **Phase B — New frontend**: a full React SPA covering the entire workflow (auth, contacts CRUD, appointments CRUD, dashboard), built as a separate project talking to the existing API.
 
-### 2.3 Explicitly out of scope
+### 2.3 Completed in a third phase
 
-- Upgrading Laravel 8 → a current LTS version (flagged, not done — see §7)
+**Phase C — Framework upgrade**: Laravel 8 → Laravel 11, `tymon/jwt-auth` → `Laravel Sanctum 4.x`, PHP requirement raised to `^8.2`. All 12 tests remain green.
+
+### 2.4 Explicitly out of scope
+
 - A JavaScript test runner (Vitest/RTL) for the frontend
-- Changing the `address`/`appointment_address` `max:7` business rule (assumed intentional, e.g. a postcode field)
+- Wiring up the Google Maps API key (integration code is in place, just needs a key)
 
 ---
 
@@ -66,8 +69,8 @@ flowchart LR
         UI --> RQ --> AX
     end
 
-    subgraph Backend["Laravel 8 API (port 8000)"]
-        MW[auth:api middleware]
+    subgraph Backend["Laravel 11 API (port 8000)"]
+        MW[auth:sanctum middleware]
         CTRL[Controllers]
         POL[Policies]
         SVC[Services]
@@ -79,7 +82,7 @@ flowchart LR
 
     DB[(MySQL)]
 
-    AX -- "HTTPS + JSON\nAuthorization: Bearer <jwt>" --> MW
+    AX -- "HTTPS + JSON\nAuthorization: Bearer <token>" --> MW
     MODEL --> DB
 ```
 
@@ -104,8 +107,6 @@ app/
     Resources/                    API response shaping
       ContactResource.php
       AppointmentResource.php
-    Middleware/
-      Authenticate.php           overridden: always JSON 401, no web-login redirect
   Models/
     User.php, Contacts.php, Appointments.php
   Policies/
@@ -115,9 +116,11 @@ app/
   Traits/
     ApiResponser.php             successResponse() / errorResponse() / notFoundResponse()
   Providers/
-    AuthServiceProvider.php      registers the two Policies
+    AppServiceProvider.php       registers both Policies in boot()
+bootstrap/
+  app.php                        L11 fluent config (routing, middleware, exception handler)
 database/
-  migrations/                    schema, including 3 fix-up migrations added during this pass
+  migrations/                    schema, including fix-up migrations added during this pass
 routes/
   api.php                        all API routes, prefixed /api/auth/...
   web.php                        just GET /docs (static API documentation page)
@@ -130,6 +133,7 @@ routes/
 - **Policies** are a defense-in-depth authorization layer. The controllers already scope lookups through the authenticated user's own relation (e.g. `$request->user()->contacts()->find($id)`), so a stranger's ID already 404s — Policies exist so that *if* a future route or refactor ever queries the model directly (`Contacts::find($id)`), it's still blocked instead of silently leaking another user's data.
 - **Services** hold business logic that doesn't belong in a controller or model — here, the appointment time-math and the (currently stubbed) distance lookup.
 - **ApiResponser trait** removes the 9+ duplicated "not found" / "updated" / "deleted" JSON blocks that used to be copy-pasted across both controllers.
+- **`bootstrap/app.php`** (L11) replaces the old `Http/Kernel.php`, `Console/Kernel.php`, and `RouteServiceProvider.php`. All routing, middleware, and exception handling is configured here using Laravel 11's fluent API.
 
 ---
 
@@ -187,21 +191,21 @@ Base path: `/api/auth/...` (yes, the prefix applies to all routes, not just auth
 
 | Method | Path | Auth | Purpose |
 |---|---|---|---|
-| POST | `/login` | — | `{email, password}` → `{access_token, token_type, expires_in, user}` |
+| POST | `/login` | — | `{email, password}` → `{access_token, token_type, user}` |
 | POST | `/register` | — | `{name, email, phone, password, password_confirmation}` → `201 {message, user}` |
-| POST | `/logout` | JWT | invalidates the current token |
-| POST | `/refresh` | JWT | issues a new token |
-| GET | `/user-profile` | JWT | returns the authenticated user |
-| GET | `/contacts` | JWT | `{data: [...]}` — only the caller's own contacts |
-| POST | `/contacts` | JWT | `{name, surname, email, phone, address}` → `{success, contact: {...}}` |
-| GET | `/contact/{id}` | JWT | `{data: {...}}` |
-| PUT | `/contact/{id}` | JWT | partial update, `{success}` |
-| DELETE | `/contact/{id}` | JWT | `{success}` |
-| GET | `/appointments` | JWT | `{data: [...]}` |
-| POST | `/appointments` | JWT | `{contact_id, appointment_date, appointment_address, appointment_start_time}` → `{success, appointment: {...}}` |
-| GET | `/appointment/{id}` | JWT | `{data: {...}}` |
-| PUT | `/appointment/{id}` | JWT | partial update — re-derives the schedule if `appointment_start_time` is included |
-| DELETE | `/appointment/{id}` | JWT | `{success}` |
+| POST | `/logout` | Sanctum | deletes the current token |
+| POST | `/refresh` | Sanctum | deletes current token and issues a new one |
+| GET | `/user-profile` | Sanctum | returns the authenticated user |
+| GET | `/contacts` | Sanctum | `{data: [...]}` — only the caller's own contacts |
+| POST | `/contacts` | Sanctum | `{name, surname, email, phone, address}` → `{success, contact: {...}}` |
+| GET | `/contact/{id}` | Sanctum | `{data: {...}}` |
+| PUT | `/contact/{id}` | Sanctum | partial update, `{success}` |
+| DELETE | `/contact/{id}` | Sanctum | `{success}` |
+| GET | `/appointments` | Sanctum | `{data: [...]}` |
+| POST | `/appointments` | Sanctum | `{contact_id, appointment_date, appointment_address, appointment_start_time}` → `{success, appointment: {...}}` |
+| GET | `/appointment/{id}` | Sanctum | `{data: {...}}` |
+| PUT | `/appointment/{id}` | Sanctum | partial update — re-derives the schedule if `appointment_start_time` is included |
+| DELETE | `/appointment/{id}` | Sanctum | `{success}` |
 
 **Validation errors are 422.** Two different shapes exist depending on the endpoint (a pre-existing quirk, documented rather than unified, to avoid touching more than necessary):
 - `/login`, `/register` → the raw Laravel error bag directly: `{"email": ["..."]}`
@@ -214,13 +218,13 @@ The frontend's `frontend/src/utils/errors.js` already handles both.
 ```mermaid
 sequenceDiagram
     participant C as Client (SPA)
-    participant MW as auth:api middleware
+    participant MW as auth:sanctum middleware
     participant Ctrl as Controller
     participant Pol as Policy
     participant DB as Database
 
-    C->>MW: Request + Authorization: Bearer <jwt>
-    alt token missing/invalid
+    C->>MW: Request + Authorization: Bearer <token>
+    alt token missing/invalid/deleted
         MW-->>C: 401 JSON {"message": "Unauthenticated."}
     else token valid
         MW->>Ctrl: forward request, $request->user() resolved
@@ -268,6 +272,8 @@ These weren't visible from reading the code — each was only caught by actually
 | 7 | `UserFactory` missing required `phone` (NOT NULL, no default) | `database/factories/UserFactory.php` | `User::factory()->create()` failing in a test |
 | 8 | `update()` never recomputed the derived schedule, only `create()` did | `AppointmentController.php` | Building the frontend's appointment-edit form and checking if editing the start time actually changed anything |
 | 9 | React Query cache invalidation raced the UI's "switch back to read mode," briefly showing stale data after a successful edit | `frontend/src/hooks/use*.js` | Playwright E2E run, asserting the displayed value actually changed |
+| 10 | `UserFactory` hardcoded a bcrypt-10-rounds password hash; L11's new `hashed` model cast strictly verifies rounds match `BCRYPT_ROUNDS` (4 in tests) — factory threw `RuntimeException` on every test | `database/factories/UserFactory.php` | First test run after L11 upgrade |
+| 11 | L11's built-in `Authenticate` middleware calls `route('login')` when the request has no JSON `Accept` header — crashes with `RouteNotFoundException` since there's no named `login` web route in this API-only app | `bootstrap/app.php` | The unauthenticated-without-JSON-Accept test, first run after L11 upgrade |
 
 **Lesson embedded in this list**: almost every one of these was hidden behind "this code looks fine" and only surfaced by writing a test, running a migration, or clicking through a browser. Don't trust a Laravel/React app's correctness from a read-through alone — run it.
 
@@ -279,14 +285,13 @@ These weren't visible from reading the code — each was only caught by actually
 
 ```bash
 composer install
-cp .env.example .env        # then fill in DB_*, set CORS_ALLOWED_ORIGINS if needed
+cp .env.example .env        # fill in DB_*, set CORS_ALLOWED_ORIGINS to your frontend URL
 php artisan key:generate
-php artisan jwt:secret       # required - see bug #1 above
 php artisan migrate
 php artisan serve            # http://127.0.0.1:8000
 ```
 
-Run tests: `php artisan test` (or `vendor/bin/phpunit`) — 12 tests covering auth, contacts/appointments CRUD, cross-user authorization, and the scheduling service.
+Run tests: `php artisan test` (or `vendor/bin/phpunit`) — 12 tests covering auth, contacts/appointments CRUD, cross-user authorization, and the scheduling service. Tests run against an isolated **in-memory SQLite database** — they never touch your real MySQL database.
 
 ### Frontend
 
@@ -303,7 +308,6 @@ Both must be running simultaneously for the SPA to work. `npm run build` produce
 
 ## 9. Known limitations / recommended next steps
 
-- **Laravel 8 is past end-of-life**, and `composer audit` reports active CVEs in `guzzlehttp/guzzle`, `guzzlehttp/psr7`, and `laravel/framework` itself (including a high-severity CRLF injection). Upgrading is a deliberate, separate project — not a drop-in patch on this version line.
-- **Google Maps distance lookup is not wired up.** `AppointmentSchedulingService::fetchGoogleDistanceMatrix()` exists and reads `GOOGLE_MAPS_API_KEY` from `config/services.php`, but nothing calls it yet — `estimateTravel()` still returns static placeholders.
+- **Google Maps distance lookup is not wired up.** `AppointmentSchedulingService::fetchGoogleDistanceMatrix()` exists and reads `GOOGLE_MAPS_API_KEY` from `config/services.php`, but nothing calls it yet — `estimateTravel()` still returns static placeholders (`2km`, `30 min`, `40 min`). Drop a real key into `.env` and wire `estimateTravel()` to call the method.
 - **No JavaScript test suite.** The frontend was verified via a one-off Playwright script during development, not a committed test suite. Worth adding Vitest + React Testing Library if the frontend will keep growing.
-- **`appointment_address`/`address` are capped at 7 characters** server-side. This looks like an unfinished postcode-only design (there's a `'cm27pj'`-shaped default value on `users.address`) — confirm intent with whoever owns the product before changing it.
+- **`users.address` defaults to `cm27pj`** — this looks like a leftover postcode from the original development environment. Review whether a meaningful default is needed or if the column should be nullable.

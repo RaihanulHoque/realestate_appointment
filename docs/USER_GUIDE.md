@@ -49,7 +49,7 @@ Click **Contacts** in the top menu. You'll see a list of everyone you've added, 
 ### Add a contact
 1. From the Contacts page, click **New contact**.
 2. Fill in **Name, Surname, Email, Phone, Address**.
-   - Note: Address has a short length limit (it's intended for a postcode, not a full street address).
+   - Phone must be between 11 and 13 characters (e.g. `07911123456` or `+447911123456`).
 3. Click **Create contact**. You'll be returned to your contact list with the new entry visible.
 
 ### View / edit a contact
@@ -119,9 +119,6 @@ You can't — the contact dropdown only ever shows your own contacts.
 
 **I deleted a contact or appointment by mistake — can I get it back?**
 No, deletion is permanent. Always double-check before confirming a delete.
-
-**Why is the address field so short?**
-It's designed for a short code like a postcode rather than a full address. If this doesn't fit how you work, raise it with whoever manages the system — it's a deliberate (if perhaps outdated) design choice, not a bug.
 
 **The app looks different on my phone — is that expected?**
 Yes, the layout adapts to smaller screens (the top menu collapses into a hamburger icon), but all the same features are available.

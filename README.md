@@ -41,7 +41,7 @@ A full-stack appointment scheduling system for real estate agents. Agents regist
 
 ## Application Features
 
-- Agent registration and JWT-secured login / logout / token refresh
+- Agent registration and token-secured login / logout / token refresh (Laravel Sanctum)
 - Each agent manages their own private contact list (clients/leads)
 - Contacts store: name, surname, email, phone (11–13 chars), and full address
 - Appointments are linked to a specific contact and a location address
@@ -60,9 +60,9 @@ A full-stack appointment scheduling system for real estate agents. Agents regist
 ### Backend
 | Layer | Technology |
 |---|---|
-| Framework | Laravel 8.75 |
-| Language | PHP 8.x |
-| Authentication | tymon/jwt-auth (JWT bearer tokens) |
+| Framework | Laravel 11.x |
+| Language | PHP 8.2+ |
+| Authentication | Laravel Sanctum 4.x (personal access tokens) |
 | Validation | Form Requests (per-action, strict rules) |
 | Authorization | Laravel Policies (ownership checks) |
 | Business logic | Service class (`AppointmentSchedulingService`) |
@@ -77,7 +77,7 @@ A full-stack appointment scheduling system for real estate agents. Agents regist
 | Styling | Tailwind CSS v4 |
 | Routing | React Router v6 |
 | Data fetching | TanStack React Query v5 |
-| HTTP client | axios (with JWT interceptor + auto-refresh) |
+| HTTP client | axios (with Sanctum token interceptor + auto-refresh) |
 | Notifications | react-hot-toast |
 | Icons | Heroicons v2 |
 
@@ -109,7 +109,7 @@ realestate_appointment/
     src/
       api/             axios client, auth/contacts/appointments API calls
       components/      Layout, ConfirmDialog, Skeleton, EmptyState, FormField, etc.
-      context/         AuthContext (JWT token + user state)
+      context/         AuthContext (Sanctum token + user state)
       hooks/           useContacts, useAppointments, useDarkMode
       pages/           Login, Register, Dashboard, Profile, Contacts, Appointments
 ```
@@ -129,7 +129,6 @@ composer install
 # 2. Environment
 cp .env.example .env
 php artisan key:generate
-php artisan jwt:secret        # required — generates JWT_SECRET in .env
 
 # 3. Configure .env — set your database credentials:
 #    DB_DATABASE=your_db_name
@@ -184,7 +183,7 @@ The static API documentation page is available at **http://127.0.0.1:8000/docs**
 
 All routes are prefixed with `/api/auth/`. Protected routes require:
 ```
-Authorization: Bearer <your_jwt_token>
+Authorization: Bearer <your_sanctum_token>
 ```
 
 Validation errors return `422` with the error fields directly in the response body (e.g. `{"email": ["The email field is required."]}`).
@@ -236,9 +235,8 @@ Validation errors return `422` with the error fields directly in the response bo
 **Response `200`:**
 ```json
 {
-    "access_token": "eyJ0eXAiOiJKV1Qi...",
+    "access_token": "1|abc123...",
     "token_type": "bearer",
-    "expires_in": 3600,
     "user": {
         "id": 1,
         "name": "Md Raihanul",
@@ -264,7 +262,7 @@ Validation errors return `422` with the error fields directly in the response bo
 
 #### POST `/api/auth/refresh` *(protected)*
 
-Issues a new access token. Response shape is identical to `/login`.
+Revokes the current token and issues a new one. Response shape is identical to `/login`.
 
 ---
 

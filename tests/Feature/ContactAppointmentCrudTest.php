@@ -13,7 +13,7 @@ class ContactAppointmentCrudTest extends TestCase
 
     private function authHeaders(User $user)
     {
-        $token = auth('api')->login($user);
+        $token = $user->createToken('test-token')->plainTextToken;
 
         return ['Authorization' => "Bearer {$token}"];
     }
@@ -26,7 +26,7 @@ class ContactAppointmentCrudTest extends TestCase
             'name' => 'Jane',
             'surname' => 'Doe',
             'email' => 'jane@example.com',
-            'phone' => '12345',
+            'phone' => '07911123456',
             'address' => 'AB1 2CD',
         ]);
 
@@ -62,7 +62,7 @@ class ContactAppointmentCrudTest extends TestCase
             'name' => 'Jane',
             'surname' => 'Doe',
             'email' => 'not-an-email',
-            'phone' => '12345',
+            'phone' => '07911123456',
             'address' => 'AB1 2CD',
         ])->assertStatus(422);
     }
@@ -76,7 +76,7 @@ class ContactAppointmentCrudTest extends TestCase
             'name' => 'Jane',
             'surname' => 'Doe',
             'email' => 'jane2@example.com',
-            'phone' => '999999',
+            'phone' => '07900000001',
             'address' => 'AB1 2CD',
             'created_by' => $owner->id,
         ]);
@@ -97,7 +97,7 @@ class ContactAppointmentCrudTest extends TestCase
             'name' => 'Jane',
             'surname' => 'Doe',
             'email' => 'jane3@example.com',
-            'phone' => '888888',
+            'phone' => '07900000002',
             'address' => 'AB1 2CD',
             'created_by' => $user->id,
         ]);
@@ -118,7 +118,7 @@ class ContactAppointmentCrudTest extends TestCase
             'name' => 'Jane',
             'surname' => 'Doe',
             'email' => 'jane4@example.com',
-            'phone' => '777777',
+            'phone' => '07900000003',
             'address' => 'AB1 2CD',
             'created_by' => $user->id,
         ]);

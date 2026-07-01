@@ -1,27 +1,30 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-class ChangeMeasuredDistanceToStringOnAppointmentsTable extends Migration
+return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
-    public function up()
+    public function up(): void
     {
-        DB::statement('ALTER TABLE appointments MODIFY measured_distance VARCHAR(20) NULL');
+        Schema::table('appointments', function (Blueprint $table) {
+            $table->dropColumn('measured_distance');
+        });
+
+        Schema::table('appointments', function (Blueprint $table) {
+            $table->string('measured_distance', 20)->nullable();
+        });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
-    public function down()
+    public function down(): void
     {
-        DB::statement('ALTER TABLE appointments MODIFY measured_distance DECIMAL(8,2) NULL');
+        Schema::table('appointments', function (Blueprint $table) {
+            $table->dropColumn('measured_distance');
+        });
+
+        Schema::table('appointments', function (Blueprint $table) {
+            $table->decimal('measured_distance', 8, 2)->nullable();
+        });
     }
-}
+};
