@@ -27,6 +27,9 @@ export default function ContactForm({ form, errors, onChange, onSubmit, onCancel
         value={form.phone}
         onChange={onChange}
         error={errors.phone?.[0]}
+        maxLength={13}
+        minLength={11}
+        hint="Max 13 characters (e.g. +447911123456) & Min 11 characters (e.g. 07911123456)"
         required
       />
       <FormField
@@ -35,8 +38,6 @@ export default function ContactForm({ form, errors, onChange, onSubmit, onCancel
         value={form.address}
         onChange={onChange}
         error={errors.address?.[0]}
-        maxLength={7}
-        hint="Max 7 characters (e.g. a postcode)"
         required
       />
       <div className="flex gap-3">

@@ -1,361 +1,519 @@
-<h1 align="center">Real Estate Agent Monitoring Application Backend</h1>
+<h1 align="center">Real Estate Appointment System</h1>
 <p align="center">
-    <a href="http://docs.vapor.codes/3.0/">
-        <img src="https://img.shields.io/github/followers/raihanulhoque?style=plat" alt="Documentation">
+    <a href="https://github.com/RaihanulHoque/realestate_appointment">
+        <img src="https://img.shields.io/github/followers/raihanulhoque?style=plat" alt="GitHub">
     </a>
-    <a href="https://discord.gg/vapor">
-        <img src="https://img.shields.io/github/repo-size/raihanulhoque/realestate_appointment?color=gree" alt="Team Chat">
+    <a href="https://github.com/RaihanulHoque/realestate_appointment">
+        <img src="https://img.shields.io/github/repo-size/raihanulhoque/realestate_appointment?color=green" alt="Repo Size">
     </a>
     <a href="LICENSE">
         <img src="http://img.shields.io/badge/license-MIT-brightgreen.svg" alt="MIT License">
     </a>
     <a href="https://twitter.com/raihansabuj1">
-        <img src="https://img.shields.io/twitter/follow/raihansabuj1?style=social" alt="Swift 5.1">
+        <img src="https://img.shields.io/twitter/follow/raihansabuj1?style=social" alt="Twitter">
     </a>
-    <a href="https://www.linkedin.com/in/raihanulhoque/" >
-        <img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" alt="Swift 5.1" style='height:20px'>
+    <a href="https://www.linkedin.com/in/raihanulhoque/">
+        <img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn" style="height:20px">
     </a>
 </p>
-This Real Estate Agent Monitoring API has been developed based on finding a solution to the problem faced by real estate agent companies. Usually, agent companies show their properties to different customers by organizing appointments. Specific agents are responsible to manage those customers and their appointments. Agents’ people keep all the customer records in their contact list. 
-Here in this API, an agent can get register himself and manage his customers as well as their appointments.  The Installation guide and all the features of this APP are listing below-
--	[Application Features](#application-features)
--	[Technical Features](#technical-features)
--	[Installation Guide](#installation-guide)
--	[User Registration](#user-registration)
--	[User Login](#user-login)
--	[User Profile](#user-profile)
--	[User Logout](#user-logout)
--	[Add Contacts](#add-contact)
--	[Contact List](#contact-list)
--	[Contact Detail View](#contact-detail-view)
--	[Update Contact](#update-contact)
--	[Delete Contact](#delete-contact)
--	[Add Appointment](#add-appointment)
--	[Appointment List](#appointment-list)
--	[Appointment Detail View](#appointment-detail-view)
--	[Update Appointment](#update-appointment)
--	[Delete Appointment](#delete-appointment)
 
-##  Application Features
--	This API facilitated Agent User Registration/Login/Logout system. User registration required fields are: name, email, phone, address, and password. The address should be only VALID ZIP CODE (Max:7 Characters). Here, a default zip code is provided as CM27PJ for all Agent’s Registration, considering it as the address of Agent Office.
--	An agent can add customer information as their contact list. Contact information will be adding based on name, surname, email, address, and phone. Agent can update or delete any contact if required.
--	Agents can create Appointments for specific Location (considering as ‘Appointment Address’) with specific customer from their contact list. The default appointment duration is considering as -one hour. 
--	The distance between agent’s office location and the appointment location can be measured. Agent can find estimated time duration before joining the appointment. So that h/she can have an idea about the departure time from the office based on his appointment start time. 
--	After one hour of the appointment, agent can have an idea about the estimated arrival time duration to come back to his/her office. 
--	All the distance and communication duration are measuring by Google Maps API. 
--	Agent can manage their appointments (Add, Update, delete)
+A full-stack appointment scheduling system for real estate agents. Agents register, maintain a contact list of clients/leads, and schedule appointments with automatic travel-time calculations. The system has two decoupled parts that communicate only via a REST API over CORS.
 
-## Technical Features
--	PHP Framework Laravel-8.75 is used to make this backend application. 
--	JSON Web Token Authentication (jwt-auth) is used to manage token based authentication system.  JWT generates a secured three part JSON Web Token. These three parts are separated by ‘.’ (dot) and each section is created differently. The first part of the token hold the header information, second part hold payload information and the last part of the token hold signature. This signature is made up of a hash of the header, the payload and the secret. This is the final part of the whole token. 
--	The application designed and developed on RESTful API and data transfer environment. 
--	Google Maps API is used to measure distance between two zip code location and to get time duration for transporting between them. Initially UK based zip codes (6 characters) are processing for calculation process. 
--	[POSTMAN collection folder]( https://www.getpostman.com/collections/b0987d47a462d745928d) is provided for usages reference. 
+---
+
+## Table of Contents
+
+- [Application Features](#application-features)
+- [Tech Stack](#tech-stack)
+- [Project Structure](#project-structure)
+- [Installation Guide](#installation-guide)
+  - [Backend Setup](#backend-setup)
+  - [Frontend Setup](#frontend-setup)
+- [Running the App](#running-the-app)
+- [API Reference](#api-reference)
+  - [Authentication](#authentication)
+  - [Contacts](#contacts)
+  - [Appointments](#appointments)
+- [Testing](#testing)
+- [Further Reading](#further-reading)
+
+---
+
+## Application Features
+
+- Agent registration and JWT-secured login / logout / token refresh
+- Each agent manages their own private contact list (clients/leads)
+- Contacts store: name, surname, email, phone (11–13 chars), and full address
+- Appointments are linked to a specific contact and a location address
+- When an appointment is created or its start time is updated, the system automatically calculates:
+  - **Departure time** — when the agent should leave the office
+  - **Appointment end time** — start time + 1 hour (default duration)
+  - **Return to office time** — estimated arrival back after the appointment
+- Distances and travel times currently use placeholder values pending a live Google Maps API key (the integration code is in place — see `app/Services/AppointmentSchedulingService.php`)
+- Full CRUD for both contacts and appointments
+- Every user's data is fully private — no user can see or edit another user's records
+
+---
+
+## Tech Stack
+
+### Backend
+| Layer | Technology |
+|---|---|
+| Framework | Laravel 8.75 |
+| Language | PHP 8.x |
+| Authentication | tymon/jwt-auth (JWT bearer tokens) |
+| Validation | Form Requests (per-action, strict rules) |
+| Authorization | Laravel Policies (ownership checks) |
+| Business logic | Service class (`AppointmentSchedulingService`) |
+| API responses | API Resources (`ContactResource`, `AppointmentResource`) |
+| Database | MySQL |
+
+### Frontend
+| Layer | Technology |
+|---|---|
+| Framework | React 18 (plain JavaScript) |
+| Build tool | Vite |
+| Styling | Tailwind CSS v4 |
+| Routing | React Router v6 |
+| Data fetching | TanStack React Query v5 |
+| HTTP client | axios (with JWT interceptor + auto-refresh) |
+| Notifications | react-hot-toast |
+| Icons | Heroicons v2 |
+
+---
+
+## Project Structure
+
+```
+realestate_appointment/
+  app/
+    Http/
+      Controllers/     AuthController, ContactController, AppointmentController
+      Requests/        Form Request classes for all CRUD actions
+      Resources/       ContactResource, AppointmentResource
+    Models/            User, Contacts, Appointments
+    Policies/          ContactPolicy, AppointmentPolicy
+    Services/          AppointmentSchedulingService
+    Traits/            ApiResponser (shared JSON response helpers)
+  database/
+    migrations/        Full schema including FK constraints and index fixes
+  routes/
+    api.php            All REST API routes (prefix: /api/auth/...)
+    web.php            GET /docs (static API reference page)
+  tests/               12 PHPUnit tests (feature + unit)
+  docs/
+    DEVELOPER_GUIDE.md Full technical documentation with architecture diagrams
+    USER_GUIDE.md      End-user documentation for agents
+  frontend/            React SPA (completely separate from Laravel's asset pipeline)
+    src/
+      api/             axios client, auth/contacts/appointments API calls
+      components/      Layout, ConfirmDialog, Skeleton, EmptyState, FormField, etc.
+      context/         AuthContext (JWT token + user state)
+      hooks/           useContacts, useAppointments, useDarkMode
+      pages/           Login, Register, Dashboard, Profile, Contacts, Appointments
+```
+
+---
 
 ## Installation Guide
-*	Get the application from [GitHub link](https://github.com/RaihanulHoque/realestate_appointment.git)
-*	Run the composer to the application folder `composer install` 
-*	Copy the .env file from the example file `cp .env.example .env`
-*	Generate the artisan key `php artisan key:generate`
-*	Create a database and rename the database name into the .env file and run the migration command `php artisan migrate`
-*	Generate the JWT Secret code by `php artisan jwt:secret`
-*	clear your application cache by `php artisan clear-compiled`
-*	Recreate boostrap/cache/compiled.php by `php artisan optimize`
-*	Run the application `php artisan serve`
-*	Go to link and access the application `localhost:8000`
 
+### Backend Setup
 
-## User Registration 
-### POST /register
-Example Link: http://127.0.0.1:8000/api/auth/register
+```bash
+# 1. Clone and install dependencies
+git clone https://github.com/RaihanulHoque/realestate_appointment.git
+cd realestate_appointment
+composer install
 
-Response body:
-```ruby
+# 2. Environment
+cp .env.example .env
+php artisan key:generate
+php artisan jwt:secret        # required — generates JWT_SECRET in .env
+
+# 3. Configure .env — set your database credentials:
+#    DB_DATABASE=your_db_name
+#    DB_USERNAME=your_username
+#    DB_PASSWORD=your_password
+#    CORS_ALLOWED_ORIGINS=http://localhost:5173   (or your frontend URL)
+
+# 4. Database
+php artisan migrate
+```
+
+> **Note:** If you plan to run `php artisan test`, the test suite is configured to use an isolated in-memory SQLite database — it will never touch your real MySQL database.
+
+### Frontend Setup
+
+```bash
+cd frontend
+npm install
+
+# Copy and configure the environment file:
+cp .env.example .env
+# Default: VITE_API_BASE_URL=http://localhost:8000/api
+# Change this if your backend runs on a different port/host
+```
+
+---
+
+## Running the App
+
+Both servers must run simultaneously. Open two terminals:
+
+**Terminal 1 — Backend:**
+```bash
+php artisan serve
+# API available at http://127.0.0.1:8000
+```
+
+**Terminal 2 — Frontend:**
+```bash
+cd frontend
+npm run dev
+# App available at http://localhost:5173
+```
+
+Open **http://localhost:5173** in your browser, register an account, and log in.
+
+The static API documentation page is available at **http://127.0.0.1:8000/docs**.
+
+---
+
+## API Reference
+
+All routes are prefixed with `/api/auth/`. Protected routes require:
+```
+Authorization: Bearer <your_jwt_token>
+```
+
+Validation errors return `422` with the error fields directly in the response body (e.g. `{"email": ["The email field is required."]}`).
+
+---
+
+### Authentication
+
+#### POST `/api/auth/register`
+
+**Request body:**
+```json
+{
+    "name": "Md Raihanul",
+    "email": "raihan@example.com",
+    "phone": "07911123456",
+    "password": "secret123",
+    "password_confirmation": "secret123"
+}
+```
+
+**Response `201`:**
+```json
 {
     "message": "User successfully registered",
     "user": {
+        "id": 1,
         "name": "Md Raihanul",
-        "email": "raihansabuj@gmail.com",
-        "phone": "01711239679",
-        "updated_at": "2022-08-27T04:08:37.000000Z",
-        "created_at": "2022-08-27T04:08:37.000000Z",
-        "id": 1
+        "email": "raihan@example.com",
+        "phone": "07911123456",
+        "created_at": "2026-06-27T10:00:00.000000Z",
+        "updated_at": "2026-06-27T10:00:00.000000Z"
     }
 }
 ```
 
-## User Login 
-### POST /login
-Example Link: http://127.0.0.1:8000/api/auth/login
+---
 
-Response body:
-```ruby
+#### POST `/api/auth/login`
+
+**Request body:**
+```json
 {
-    "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvYXBpL2F1dGgvbG9naW4iLCJpYXQiOjE2NjE2MDI3MjAsImV4cCI6MTY2MTYwNjMyMCwibmJmIjoxNjYxNjAyNzIwLCJqdGkiOiJnUDdsaWxuR09hd0NYZXppIiwic3ViIjoiMSIsInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjcifQ.RK_ltv1VKewt8y8o_Ray-NCTbnRWbNqhuCu31hB1n-k",
+    "email": "raihan@example.com",
+    "password": "secret123"
+}
+```
+
+**Response `200`:**
+```json
+{
+    "access_token": "eyJ0eXAiOiJKV1Qi...",
     "token_type": "bearer",
     "expires_in": 3600,
     "user": {
         "id": 1,
         "name": "Md Raihanul",
-        "phone": "0112312994",
-        "address": "cm27pj",
-        "email": "raihansabuj@gmail.com",
-        "email_verified_at": null,
-        "created_at": "2022-08-27T04:08:37.000000Z",
-        "updated_at": "2022-08-27T04:08:37.000000Z"
+        "email": "raihan@example.com",
+        "phone": "07911123456",
+        "address": "cm27pj"
     }
 }
 ```
 
+---
 
+#### POST `/api/auth/logout` *(protected)*
 
-## User Profile 
-### GET /user-profile
-Example Link: http://127.0.0.1:8000/api/auth/user-profile
-
-Response body:
-```ruby
-{
-    "id": 1,
-    "name": "Md Raihanul",
-    "phone": "0112312994",
-    "address": "cm27pj",
-    "email": "raihansabuj@gmail.com",
-    "email_verified_at": null,
-    "created_at": "2022-08-27T04:08:37.000000Z",
-    "updated_at": "2022-08-27T04:08:37.000000Z"
-}
-```
-
-
-
-## User Logout 
-### POST /logout
-Example Link: http://127.0.0.1:8000/api/auth/logout
-
-Response body:
-```ruby
+**Response `200`:**
+```json
 {
     "message": "User successfully signed out"
 }
 ```
 
+---
 
+#### POST `/api/auth/refresh` *(protected)*
 
+Issues a new access token. Response shape is identical to `/login`.
 
-## Add Contact
-### POST /contacts
-Example Link: http://127.0.0.1:8000/api/auth/contacts
+---
 
-Response body:
-```ruby
+#### GET `/api/auth/user-profile` *(protected)*
+
+**Response `200`:**
+```json
+{
+    "id": 1,
+    "name": "Md Raihanul",
+    "email": "raihan@example.com",
+    "phone": "07911123456",
+    "address": "cm27pj"
+}
+```
+
+---
+
+### Contacts
+
+#### GET `/api/auth/contacts` *(protected)*
+
+Returns only the authenticated agent's own contacts.
+
+**Response `200`:**
+```json
+{
+    "data": [
+        {
+            "id": 1,
+            "name": "James",
+            "surname": "Bond",
+            "email": "james@example.com",
+            "phone": "07700900123",
+            "address": "10 Downing Street, London",
+            "created_at": "2026-06-27T12:00:00.000000Z",
+            "updated_at": "2026-06-27T12:00:00.000000Z"
+        }
+    ]
+}
+```
+
+---
+
+#### POST `/api/auth/contacts` *(protected)*
+
+**Request body:**
+```json
+{
+    "name": "James",
+    "surname": "Bond",
+    "email": "james@example.com",
+    "phone": "07700900123",
+    "address": "10 Downing Street, London"
+}
+```
+
+Validation: `phone` must be 11–13 characters (e.g. `07911123456` or `+447911123456`).
+
+**Response `200`:**
+```json
 {
     "success": true,
     "contact": {
-        "created_by": 1,
-        "name": "James",
-        "surname": "Bonds",
-        "email": "jamesss@gm.com",
-        "phone": "+44586005",
-        "address": "LU11AA",
-        "updated_at": "2022-08-27T12:31:36.000000Z",
-        "created_at": "2022-08-27T12:31:36.000000Z",
-        "id": 1
-    }
-}
-```
-
-
-## Contact List
-### GET /contacts
-Example Link: http://127.0.0.1:8000/api/auth/contacts
-
-Response body:
-```ruby
-[
-    {
         "id": 1,
         "name": "James",
-        "surname": "Bonds",
-        "email": "jamesss@gm.com",
-        "phone": "+44586005",
-        "address": "LU11AA",
-        "created_by": "1",
-        "created_at": "2022-08-27T12:31:36.000000Z",
-        "updated_at": "2022-08-27T12:31:36.000000Z"
-    },
-    {
-        "id": 2,
-        "name": "Jashim",
-        "surname": "Khan",
-        "email": "JKhan@gm.com",
-        "phone": "+4491039201",
-        "address": "LU11BN",
-        "created_by": "1",
-        "created_at": "2022-08-27T05:00:43.000000Z",
-        "updated_at": "2022-08-27T05:19:13.000000Z"
+        "surname": "Bond",
+        "email": "james@example.com",
+        "phone": "07700900123",
+        "address": "10 Downing Street, London",
+        "created_at": "2026-06-27T12:00:00.000000Z",
+        "updated_at": "2026-06-27T12:00:00.000000Z"
     }
-]
-```
-
-## Contact Detail View
-### GET /contact/{id}
-Example Link: http://127.0.0.1:8000/api/auth/contact/1
-
-Response body:
-```ruby
-{
-    "id": 1,
-    "name": "James",
-    "surname": "Bond",
-    "email": "james@gm.com",
-    "phone": "+44586005",
-    "address": "LU11AA",
-    "created_by": "1",
-    "created_at": "2022-08-27T09:02:55.000000Z",
-    "updated_at": "2022-08-27T09:02:55.000000Z"
 }
 ```
 
+---
 
-## Update Contact
-### PUT /contact/{id}
-Example Link: http://127.0.0.1:8000/api/auth/contact/1
+#### GET `/api/auth/contact/{id}` *(protected)*
 
-Response body:
-```ruby
+**Response `200`:**
+```json
 {
-    "success": true,
-    "message": "Contact Updated successfully!",
+    "data": {
+        "id": 1,
+        "name": "James",
+        "surname": "Bond",
+        "email": "james@example.com",
+        "phone": "07700900123",
+        "address": "10 Downing Street, London",
+        "created_at": "2026-06-27T12:00:00.000000Z",
+        "updated_at": "2026-06-27T12:00:00.000000Z"
+    }
 }
 ```
 
+---
 
-## Delete Contact
-### DELETE /contact/{id}
-Example Link: http://127.0.0.1:8000/api/auth/contact/1
+#### PUT `/api/auth/contact/{id}` *(protected)*
 
-Response body:
-```ruby
+All fields are optional (partial update). Sends only the fields you want to change.
+
+**Response `200`:**
+```json
 {
-    "success": true,
-    "message": "Contact has been deleted"
+    "success": true
 }
 ```
 
+---
 
-## Add Appointment
-### POST /appointments
-Example Link: http://127.0.0.1:8000/api/auth/appointments
+#### DELETE `/api/auth/contact/{id}` *(protected)*
 
-Response body:
-```ruby
+**Response `200`:**
+```json
+{
+    "success": true
+}
+```
+
+---
+
+### Appointments
+
+#### GET `/api/auth/appointments` *(protected)*
+
+**Response `200`:**
+```json
+{
+    "data": [
+        {
+            "id": 1,
+            "contact_id": 1,
+            "appointment_address": "LU1 1AA",
+            "measured_distance": "2km",
+            "appointment_date": "2026-07-15",
+            "appointment_start_time": "10:00:00",
+            "departure_time_to_site_office": "09:30:00",
+            "appointment_end_time": "11:00:00",
+            "arrival_time_to_agent_office": "11:40:00",
+            "created_at": "2026-06-27T12:00:00.000000Z",
+            "updated_at": "2026-06-27T12:00:00.000000Z"
+        }
+    ]
+}
+```
+
+---
+
+#### POST `/api/auth/appointments` *(protected)*
+
+`contact_id` must be an ID from the authenticated user's own contact list.
+
+**Request body:**
+```json
+{
+    "contact_id": 1,
+    "appointment_date": "2026-07-15",
+    "appointment_start_time": "10:00:00",
+    "appointment_address": "LU1 1AA"
+}
+```
+
+The server automatically calculates `departure_time_to_site_office`, `appointment_end_time`, and `arrival_time_to_agent_office`.
+
+**Response `200`:**
+```json
 {
     "success": true,
     "appointment": {
-        "user_id": 1,
-        "contact_id": "3",
-        "appointment_address": "LU11BL",
-        "appointment_date": "2022-08-23",
-        "measured_distance": "93km",
-        "appointment_start_time": "12:30:00",
-        "departure_time_to_site_office": "11:10:00",
-        "appointment_end_time": "13:30:00",
-        "arrival_time_to_agent_office": "14:50:00",
-        "updated_at": "2022-08-27T09:54:32.000000Z",
-        "created_at": "2022-08-27T09:54:32.000000Z",
-        "id": 12
-    }
-}
-```
-
-
-## Appointment List
-### GET /appointments
-Example Link: http://127.0.0.1:8000/api/auth/appointments
-
-Response body:
-```ruby
-[
-   {
-        "id": 5,
+        "id": 1,
         "contact_id": 1,
-        "user_id": "1",
-        "appointment_address": "CM29PJ",
+        "appointment_address": "LU11AA",
         "measured_distance": "2km",
-        "appointment_date": "2022-08-25",
+        "appointment_date": "2026-07-15",
         "appointment_start_time": "10:00:00",
-        "departure_time_to_site_office": "10:10:00",
+        "departure_time_to_site_office": "09:30:00",
         "appointment_end_time": "11:00:00",
-        "arrival_time_to_agent_office": "11:10:00",
-        "created_at": "2022-08-27T09:00:41.000000Z",
-        "updated_at": "2022-08-27T09:00:41.000000Z"
-    },
-    {
-        "id": 7,
-        "contact_id": 1,
-        "user_id": "1",
-        "appointment_address": "cm27pj",
-        "measured_distance": "2.5km",
-        "appointment_date": "2022-08-26",
-        "appointment_start_time": "12:00:00",
-        "departure_time_to_site_office": "12:15:00",
-        "appointment_end_time": "13:15:00",
-        "arrival_time_to_agent_office": "13:30:00",
-        "created_at": "2022-08-27T09:08:44.000000Z",
-        "updated_at": "2022-08-27T09:08:44.000000Z"
-    },
-]
-```
-
-
-## Appointment Detail View
-### GET /appointment/{id}
-Example Link: http://127.0.0.1:8000/api/auth/appointment/12
-
-Response body:
-```ruby
-    {
-        "id": 12,
-        "user_id": 1,
-        "contact_id": "3",
-        "appointment_address": "LU11BL",
-        "appointment_date": "2022-08-23",
-        "measured_distance": "93km",
-        "appointment_start_time": "12:30:00",
-        "departure_time_to_site_office": "11:10:00",
-        "appointment_end_time": "13:30:00",
-        "arrival_time_to_agent_office": "14:50:00",
-        "updated_at": "2022-08-27T09:54:32.000000Z",
-        "created_at": "2022-08-27T09:54:32.000000Z"
+        "arrival_time_to_agent_office": "11:40:00",
+        "created_at": "2026-06-27T12:00:00.000000Z",
+        "updated_at": "2026-06-27T12:00:00.000000Z"
     }
-
-```
-
-
-## Update Appointment
-### PUT /appointment/{id}
-Example Link: http://127.0.0.1:8000/api/auth/appointment/12
-
-Response body:
-```ruby
-{
-    "success": true,
-    'message'=>'Appointment updated successfully!',
 }
-
 ```
 
+---
 
-## Delete Appointment
-### DELETE /appointment/{id}
-Example Link: http://127.0.0.1:8000/api/auth/appointment/12
+#### GET `/api/auth/appointment/{id}` *(protected)*
 
-Response body:
-```ruby
+**Response `200`:**
+```json
 {
-    "success": true,
-    "message": "The appointment has been deleted"
+    "data": {
+        "id": 1,
+        "contact_id": 1,
+        "appointment_address": "LU11AA",
+        "measured_distance": "2km",
+        "appointment_date": "2026-07-15",
+        "appointment_start_time": "10:00:00",
+        "departure_time_to_site_office": "09:30:00",
+        "appointment_end_time": "11:00:00",
+        "arrival_time_to_agent_office": "11:40:00",
+        "created_at": "2026-06-27T12:00:00.000000Z",
+        "updated_at": "2026-06-27T12:00:00.000000Z"
+    }
 }
-
 ```
+
+---
+
+#### PUT `/api/auth/appointment/{id}` *(protected)*
+
+All fields are optional. If `appointment_start_time` is included, the server automatically recalculates `departure_time_to_site_office`, `appointment_end_time`, and `arrival_time_to_agent_office`.
+
+**Response `200`:**
+```json
+{
+    "success": true
+}
+```
+
+---
+
+#### DELETE `/api/auth/appointment/{id}` *(protected)*
+
+**Response `200`:**
+```json
+{
+    "success": true
+}
+```
+
+---
+
+## Testing
+
+The test suite runs against an isolated **in-memory SQLite database** and never touches your real MySQL database.
+
+```bash
+php artisan test
+```
+
+Expected output: **12 tests, 35 assertions** — covering auth validation, contacts CRUD, appointments CRUD, cross-user authorization, and the scheduling service.
+
+---
+
+## Further Reading
+
+| Document | Contents |
+|---|---|
+| [`docs/DEVELOPER_GUIDE.md`](docs/DEVELOPER_GUIDE.md) | Architecture diagrams, database schema, API request lifecycle, all bugs found and fixed, full local setup |
+| [`docs/USER_GUIDE.md`](docs/USER_GUIDE.md) | End-user guide for real estate agents using the application |

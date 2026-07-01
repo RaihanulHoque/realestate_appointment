@@ -21,7 +21,7 @@ class StoreAppointmentRequest extends FormRequest
                 Rule::exists('contacts', 'id')->where('created_by', $this->user()->id),
             ],
             'appointment_date' => 'required|date',
-            'appointment_address' => 'required|max:7',
+            'appointment_address' => 'sometimes|required|string|max:255',
             'appointment_start_time' => 'required',
         ];
     }

@@ -21,7 +21,7 @@ class UpdateAppointmentRequest extends FormRequest
                 'integer',
                 Rule::exists('contacts', 'id')->where('created_by', $this->user()->id),
             ],
-            'appointment_address' => 'sometimes|required|max:7',
+            'appointment_address' => 'sometimes|required|max:255',
             'measured_distance' => 'sometimes|required',
             'appointment_date' => 'sometimes|required|date',
             'appointment_start_time' => 'sometimes|required',

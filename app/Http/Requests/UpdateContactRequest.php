@@ -17,8 +17,8 @@ class UpdateContactRequest extends FormRequest
             'name' => 'sometimes|required|string',
             'surname' => 'sometimes|required|string',
             'email' => 'sometimes|required|email',
-            'phone' => 'sometimes|required|string',
-            'address' => 'sometimes|required|string|max:7',
+            'phone' => 'sometimes|required|string|max:13|min:11',
+            'address' => 'sometimes|required|string|max:255',
         ];
     }
 }

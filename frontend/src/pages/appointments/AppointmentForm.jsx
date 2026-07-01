@@ -55,8 +55,6 @@ export default function AppointmentForm({
         value={form.appointment_address}
         onChange={onChange}
         error={errors.appointment_address?.[0]}
-        maxLength={7}
-        hint="Max 7 characters (e.g. a postcode)"
         required
       />
 
