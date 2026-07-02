@@ -35,7 +35,7 @@ export default function Layout() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       <header className="border-b border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
         <nav className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
-          <span className="text-lg font-semibold text-gray-900 dark:text-gray-100">Appointments</span>
+          <span className="text-lg font-semibold text-gray-900 dark:text-gray-100">Real Estate Appointment System</span>
 
           <div className="hidden items-center gap-1 md:flex">
             {navItems.map((item) => (

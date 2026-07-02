@@ -44,7 +44,7 @@ export default function Dashboard() {
         />
         <StatCard
           icon={CalendarDaysIcon}
-          label="Appointments"
+          label="Total Appointments"
           count={appointments?.length ?? 0}
           isLoading={appointmentsLoading}
           to="/appointments"

@@ -1,4 +1,6 @@
-import FormField, { SelectField } from '../../components/FormField'
+import FormField from '../../components/FormField'
+import SearchableSelect from '../../components/SearchableSelect'
+import TimePicker from '../../components/TimePicker'
 
 export default function AppointmentForm({
   form,
@@ -10,23 +12,23 @@ export default function AppointmentForm({
   isSubmitting,
   submitLabel,
 }) {
+  const contactOptions = contacts.map((c) => ({
+    value: c.id,
+    label: `${c.name} ${c.surname}`,
+  }))
+
   return (
     <form onSubmit={onSubmit} className="space-y-4">
-      <SelectField
+      <SearchableSelect
         label="Contact"
         name="contact_id"
         value={form.contact_id}
         onChange={onChange}
+        options={contactOptions}
+        placeholder="Search contacts…"
         error={errors.contact_id?.[0]}
         required
-      >
-        <option value="">Select a contact…</option>
-        {contacts.map((contact) => (
-          <option key={contact.id} value={contact.id}>
-            {contact.name} {contact.surname}
-          </option>
-        ))}
-      </SelectField>
+      />
 
       <FormField
         label="Date"
@@ -38,11 +40,9 @@ export default function AppointmentForm({
         required
       />
 
-      <FormField
+      <TimePicker
         label="Start time"
         name="appointment_start_time"
-        type="time"
-        step="1"
         value={form.appointment_start_time}
         onChange={onChange}
         error={errors.appointment_start_time?.[0]}

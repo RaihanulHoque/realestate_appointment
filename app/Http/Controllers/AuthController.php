@@ -26,11 +26,12 @@ class AuthController extends Controller
             return response()->json($validator->errors(), 422);
         }
 
-        if (!Auth::attempt($validator->validated())) {
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user || !Hash::check($request->password, $user->password)) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
-        $user = Auth::user();
         $token = $user->createToken('auth-token')->plainTextToken;
 
         return $this->tokenResponse($token, $user);
